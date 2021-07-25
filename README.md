@@ -1,6 +1,6 @@
 ## Calculus in Scala 3
 
-The code in this project implement basic concepts from calculus in Scala 3 and demonstrates how they work.
+The code in this project implements basic concepts from calculus in Scala 3 and demonstrates how they work.
 
 ## sbt project compiled with Scala 3
 
