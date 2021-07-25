@@ -6,10 +6,6 @@ object Polynomials extends App {
 
   class Polynomial(val coefs: MathVector):
 
-    // Alternative constructor
-    // def this(coefVector: Vector[Double]) =
-      // this(MathVector(coefVector))
-
     def plus(other: Polynomial): Polynomial =
       /*
         Return the sum of this and other.
@@ -17,6 +13,17 @@ object Polynomials extends App {
 
       Polynomial(this.coefs.plus(other.coefs))
 
+    
+    def degree: Int =
+    /*
+      Return the degree of this. By definition, the
+      degree of a polynomial is the index of the
+      highest-order non-zero coefficient.
+     */
+
+      this.coefs.coords.lastIndexWhere(a => a != 0)
+
+    
     def times(other: Polynomial): Polynomial =
       /*
         Return the product of this and other.
@@ -32,6 +39,7 @@ object Polynomials extends App {
         )
       )
 
+    
     def derivative: Polynomial =
       /*
         Return the derivative of this.
@@ -39,20 +47,11 @@ object Polynomials extends App {
 
       Polynomial(
         MathVector(
-          this.coefs.coords.zipWithIndex.map((a, i) => i * a).drop(0)
+          this.coefs.coords.zipWithIndex.map((a, i) => i * a).tail
         )
       )
-
-    def degree: Int =
-      /*
-        Return the degree of this. By definition, the
-        degree of a polynomial is the index of the
-        highest-order non-zero coefficient.
-       */
-
-      this.coefs.coords.lastIndexWhere(a => a != 0)
-
-    // Polynomial as function
+    
+    
     def evaluate(point: Double): Double =
       /*
         Evaluate this at point.
@@ -63,20 +62,19 @@ object Polynomials extends App {
         .map((a, i) => a * pow(point, i))
         .sum
 
-    def toFunction(): RealFunction =
-      RealFunction(x => this.evaluate(x))
-
-    def oneIteration(input: Double) =
-      input - this.evaluate(input) / this.derivative.evaluate(input)
-      // TODO: handle division by zero, catch exception
-
+    
     def newtonsMethodPolynomial(initialGuess: Double, iterations: Int): Double =
-      // TODO: not working
       if iterations == 0 then
         initialGuess
       else
-        newtonsMethodPolynomial(oneIteration(initialGuess), iterations - 1)
+        newtonsMethodPolynomial(initialGuess - this.evaluate(initialGuess) / this.derivative.evaluate(initialGuess), iterations - 1)
+        // TODO: handle division by zero, catch exception
+    
 
+    def toFunction(): RealFunction =
+      RealFunction(x => this.evaluate(x))
+      
+      
     override def toString(): String =
       this.coefs.coords.zipWithIndex.map((a, i) => if i == 0 then s"$a" else s"${a}x^$i").mkString(" + ")
       // TODO: Force only two digits after decimal separator.
