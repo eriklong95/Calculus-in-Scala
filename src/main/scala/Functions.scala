@@ -87,18 +87,27 @@ object Functions extends App {
 
     def gradientDescent(initialGuess: Double,
                         iterations: Int,
-                        alpha: Double,
+                        alpha: Double = 0.5,
                         approxMethod: ApproximationMethods = RIGHT,
                         dx: Double = 0.1): Double =
       /*
         Search for a minimum of this starting at initialGuess using gradient descent with moderator alpha.
       */
       
-      if iterations == 0 then initialGuess else gradientDescent(initialGuess - alpha * this.d(initialGuess, approxMethod, dx), iterations - 1, alpha, approxMethod, dx)
+      if iterations == 0 then 
+        initialGuess 
+      else 
+        gradientDescent(
+          initialGuess - alpha * this.d(initialGuess, approxMethod, dx), 
+          iterations - 1, 
+          alpha, 
+          approxMethod, 
+          dx
+        )
 
     def gradientAscent(initialGuess: Double,
                        iterations: Int,
-                       alpha: Double,
+                       alpha: Double = 0.5,
                        approxMethod: ApproximationMethods = RIGHT,
                        dx: Double = 0.1): Double =
       /*

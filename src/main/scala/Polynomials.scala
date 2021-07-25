@@ -29,7 +29,7 @@ object Polynomials extends App {
         Return the product of this and other.
        */
 
-      val d = this.degree * other.degree
+      val d = this.degree + other.degree
 
       Polynomial(
         MathVector(
@@ -76,6 +76,11 @@ object Polynomials extends App {
       
       
     override def toString(): String =
-      this.coefs.coords.zipWithIndex.map((a, i) => if i == 0 then s"$a" else s"${a}x^$i").mkString(" + ")
+      this.coefs.coords
+        .zipWithIndex
+        .map((a, i) =>
+          if i == 0 then
+            s"$a"
+          else s"${a}x^$i").mkString(" + ")
       // TODO: Force only two digits after decimal separator.
 }
