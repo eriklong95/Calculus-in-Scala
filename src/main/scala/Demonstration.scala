@@ -9,11 +9,7 @@ object Demonstration extends App {
     Ideas:
       - Find the Taylor-expansion of the exponential function.
       - Estimate sqrt(2) using Newton's method.
-      - Find the Taylor-polynomial to some order for a well-known function
-        (exp, sin, cos or whatever...) and plot this polynomial together
-        with this function to see how good the approximation is.
-      - Estimate Pi by integrating exp(-x^2 / 2).
-      - Illustrate The Fundamental Theorem of Calculus.
+      - Find minimum of (...) using gradientDescent.
    */
 
   println("Welcome to the Math Show!")
@@ -42,4 +38,17 @@ object Demonstration extends App {
   println("To make our estimate more precise, we run 5 iterations instead,")
   val secondEstimate = p.toFunction().newtonsMethod(1, 5)
   println(s"and we get the estimate $secondEstimate, and this is precise enough!")
+  println()
+  println("Alternatively, we could used the method newtonsMethodPolynomial directly on")
+  println("the Polynomial object p instead of first converting p to a RealFunction object.")
+  println(s"This approach we get the following estimate after ${3} iterations")
+  val newFirstEstimate = p.newtonsMethodPolynomial(1, 3)
+  println(newFirstEstimate)
+  println(s"After ${5} iterations, we get")
+  val newSecondEstimate = p.newtonsMethodPolynomial(1, 5)
+  println(newSecondEstimate)
+  println("Surprisingly enough, the polynomial method seems to converge slower.")
+  println(s"After ${10} iterations, we get")
+  val newThirdEstimate = p.newtonsMethodPolynomial(1, 10)
+  println(newThirdEstimate)
 }

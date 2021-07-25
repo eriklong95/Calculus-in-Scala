@@ -53,7 +53,7 @@ object Polynomials extends App {
       this.coefs.coords.lastIndexWhere(a => a != 0)
 
     // Polynomial as function
-    def eval(point: Double): Double =
+    def evaluate(point: Double): Double =
       /*
         Evaluate this at point.
        */
@@ -64,24 +64,20 @@ object Polynomials extends App {
         .sum
 
     def toFunction(): RealFunction =
-      RealFunction(x => this.eval(x))
+      RealFunction(x => this.evaluate(x))
 
     def oneIteration(input: Double) =
-      input - this.eval(input) / this.derivative.eval(input)
+      input - this.evaluate(input) / this.derivative.evaluate(input)
+      // TODO: handle division by zero, catch exception
 
-    def rootUsingNewton(initialGuess: Double, iterations: Int): Double =
+    def newtonsMethodPolynomial(initialGuess: Double, iterations: Int): Double =
       // TODO: not working
       if iterations == 0 then
         initialGuess
       else
-        rootUsingNewton(oneIteration(initialGuess), iterations - 1)
+        newtonsMethodPolynomial(oneIteration(initialGuess), iterations - 1)
 
     override def toString(): String =
-      this.coefs.coords.zipWithIndex.map((a, i) => s"${a}x^$i").mkString(" + ")
+      this.coefs.coords.zipWithIndex.map((a, i) => if i == 0 then s"$a" else s"${a}x^$i").mkString(" + ")
       // TODO: Force only two digits after decimal separator.
-
-  val p = Polynomial(MathVector(Vector(1000, 1000)))
-  println(p.eval(0))
-  println(p.toFunction().fct(0))
-  println(p.toString())
 }
