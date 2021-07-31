@@ -1,9 +1,7 @@
-import Functions.*
-import Polynomials.*
-import Vectors.MathVector
-import scala.math.*
+import scala.math._
 
-object Demonstration extends App {
+@main
+def main() =
 
   /*
     We will
@@ -93,4 +91,4 @@ object Demonstration extends App {
   println("As expected, the estimates get increasingly better!\n")
 
   println("This is the end of the Math Show. Thanks for watching!")
-}
+
