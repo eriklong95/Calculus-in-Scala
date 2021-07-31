@@ -57,7 +57,7 @@ def main() =
   println(newSecondEstimate)
   println("which is accurate to a precision of 9 decimal digits.\n")
 
-  println("Exercise 4: Find the local maximum of the sine function in the \n" +
+  println("Exercise 4: Estimate Pi by finding the local maximum of the sine function in the \n" +
     "interval [0, Pi] (it is Pi/2) using gradient ascent.\n")
 
   println("Solution:")

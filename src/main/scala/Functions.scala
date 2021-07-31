@@ -109,3 +109,35 @@ case class RealFunction(fct: Double => Double):
      */
     this.minus().gradientDescent(initialGuess, iterations, alpha, approxMethod, dx)
     
+  def integral(a: Double = 0,
+               b: Double = 1,
+               fineness: Double = 0.1,
+               integrationMethod: IntegrationMethods = LEFT_ENDPOINT): Double =
+    val partition: Vector[Double] = RealFunction.partition(a, b, fineness)
+    val leftEndpoints: Vector[Double] = partition.dropRight(1)
+    val rightEndPoints: Vector[Double] = partition.drop(1)
+
+    val tags: Vector[Double] =
+      if integrationMethod == LEFT_ENDPOINT then
+        leftEndpoints
+      else if integrationMethod == RIGHT_ENDPOINT then
+        rightEndPoints
+      else if integrationMethod == MIDPOINT then
+        leftEndpoints.zip(rightEndPoints).map((left, right) => (left + right) / 2)
+      else
+        leftEndpoints
+
+    leftEndpoints
+      .zip(rightEndPoints)
+      .zip(tags)
+      .map(t => this.fct(t._2) * (t._1._2 - t._1._1))
+      .reduce((a, b) => a + b)
+
+
+object RealFunction:
+
+  def partition(a: Double, b: Double, dx: Double): Vector[Double] =
+    if a > b then
+      Vector[Double](b)
+    else
+      a +: partition(a + dx, b, dx)
