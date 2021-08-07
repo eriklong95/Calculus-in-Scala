@@ -1,30 +1,17 @@
 import scala.math.pow
 
 
-class Polynomial(val coefs: MathVector):
+case class Polynomial(coefs: MathVector):
 
-  def plus(other: Polynomial): Polynomial =
-    /*
-      Return the sum of this and other.
-     */
-
-    Polynomial(this.coefs.plus(other.coefs))
-
-
-  def degree: Int =
+  def apply(point: Double): Double =
   /*
-    Return the degree of this. By definition, the
-    degree of a polynomial is the index of the
-    highest-order non-zero coefficient.
+    Evaluate this at point.
    */
 
-    this.coefs.coords.lastIndexWhere(a => a != 0)
-
-
+    this.coefs.coords.zipWithIndex.map((a, i) => a * pow(point, i)).sum
+  def plus(other: Polynomial): Polynomial = Polynomial(this.coefs.plus(other.coefs))
+  def degree: Int = this.coefs.coords.lastIndexWhere(a => a != 0)
   def times(other: Polynomial): Polynomial =
-    /*
-      Return the product of this and other.
-     */
 
     val d = this.degree + other.degree
 
@@ -38,9 +25,6 @@ class Polynomial(val coefs: MathVector):
 
 
   def derivative: Polynomial =
-    /*
-      Return the derivative of this.
-     */
 
     Polynomial(
       MathVector(
@@ -48,29 +32,8 @@ class Polynomial(val coefs: MathVector):
       )
     )
 
-
-  def evaluate(point: Double): Double =
-    /*
-      Evaluate this at point.
-     */
-
-    this.coefs.coords
-      .zipWithIndex
-      .map((a, i) => a * pow(point, i))
-      .sum
-
-
-  def newtonsMethodPolynomial(initialGuess: Double, iterations: Int): Double =
-    if iterations == 0 then
-      initialGuess
-    else
-      newtonsMethodPolynomial(initialGuess - this.evaluate(initialGuess) / this.derivative.evaluate(initialGuess), iterations - 1)
-      // TODO: handle division by zero, catch exception
-
-
   def toFunction(): RealFunction =
-    RealFunction(x => this.evaluate(x))
-
+    RealFunction(x => this.apply(x))
 
   override def toString(): String =
     this.coefs.coords
@@ -80,3 +43,28 @@ class Polynomial(val coefs: MathVector):
           s"$a"
         else s"${a}x^$i").mkString(" + ")
     // TODO: Force only two digits after decimal separator.
+
+object Polynomial:
+
+  def apply(coords: Vector[Double]): Polynomial =
+    Polynomial(MathVector(coords))
+
+  def newtonsMethod(p: Polynomial, initialGuess: Double, iterations: Int): Double =
+    if iterations == 0 then
+      initialGuess
+    else
+      newtonsMethod(p, initialGuess - p(initialGuess) / p.derivative(initialGuess), iterations - 1)
+    // TODO: handle division by zero, catch exception
+
+  def gradientDescent(p: Polynomial,
+                      initialGuess: Double,
+                      iterations: Int,
+                      alpha: Double = 0.5): Double =
+  /*
+    Search for a minimum of f starting at initialGuess using gradient descent with moderator alpha.
+  */
+
+    if iterations == 0 then
+      initialGuess
+    else
+      gradientDescent(p, initialGuess - alpha * p.derivative(initialGuess), iterations - 1, alpha)

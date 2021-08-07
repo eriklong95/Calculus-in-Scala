@@ -1,0 +1,17 @@
+1) Multiplication of polynomials
+- define two polynomials f and g.
+- print them.
+- compute f * g and print the result.
+
+2) Estimating sqrt(2)
+- initialise Polynomial object representing x^2 - 2.
+- estimate sqrt(2) using Polynomial.newtonsMethod with initialGuess = 1 and iterations = 2.
+- repeat with initialGuess = 1 and iterations = 4.
+- repeat with initialGuess = 10 and iterations = 4.
+- repeat with initialGuess = -1 and iterations = 4.
+
+3) Estimating Pi
+- Gradient descent on cos with initialGuess = 3, iterations = 3, 5, 10, 100, alpha = 0.5.
+- repeat with alpha = 0.1
+- repeat with alpha = 0.9
+- Compute Gaussian integral.

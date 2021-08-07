@@ -1,4 +1,4 @@
-class MathVector(var coords: Vector[Double]):
+class MathVector(val coords: Vector[Double]):
 
   def get_coords: Vector[Double] =
     this.coords

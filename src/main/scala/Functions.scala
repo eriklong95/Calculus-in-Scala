@@ -8,12 +8,15 @@ enum ApproximationMethods:
   case RIGHT, LEFT, AVERAGE
 
 enum IntegrationMethods:
-  case RIGHT_ENDPOINT, LEFT_ENDPOINT, MIDPOINT, RANDOM_POINT
+  case RIGHT_ENDPOINT, LEFT_ENDPOINT, MIDPOINT
 
 import ApproximationMethods.*
 import IntegrationMethods.*
 
 case class RealFunction(fct: Double => Double):
+  
+  def apply(point: Double): Double =
+    this.fct(point)
 
   // Arithmetic
   def scale(a: Double): RealFunction =
@@ -29,7 +32,7 @@ case class RealFunction(fct: Double => Double):
     RealFunction(x => this.fct(x) * other.fct(x))
 
   // Differentiation
-  def d(point: Double, approxMethod: ApproximationMethods = RIGHT, dx: Double): Double =
+  def d(point: Double, approxMethod: ApproximationMethods = AVERAGE, dx: Double): Double =
     /*
       Return the (approximate) derivative of this at point.
       Use given approximation method and infinitesimal size
@@ -42,7 +45,7 @@ case class RealFunction(fct: Double => Double):
       case AVERAGE => (d(point, RIGHT, dx) + d(point, LEFT, dx)) / 2
     }
 
-  def nth_d(point: Double, order: Int = 1, approxMethod: ApproximationMethods = RIGHT, dx: Double = 1): Double =
+  def nth_d(point: Double, order: Int = 1, approxMethod: ApproximationMethods = AVERAGE, dx: Double = 1): Double =
     /*
       Return the n'th order (approximate) derivative of this.
       Use given approximation method and infinitesimal size
@@ -54,9 +57,13 @@ case class RealFunction(fct: Double => Double):
     else if order == 1 then
       d(point, approxMethod, dx)
     else
-      nth_d(point, order - 1, approxMethod, dx)
+      approxMethod match {
+        case RIGHT => (nth_d(point + dx, order - 1, approxMethod, dx) - nth_d(point, order - 1, approxMethod, dx)) / dx
+        case LEFT => (nth_d(point, order - 1, approxMethod, dx) - nth_d(point - dx, order - 1, approxMethod, dx)) / dx
+        case AVERAGE => (nth_d(point + dx, order - 1, approxMethod, dx) - nth_d(point - dx, order - 1, approxMethod, dx)) / (2 * dx)
+      }
 
-  def taylor(center: Double, order: Int, approxMethod: ApproximationMethods = RIGHT, dx: Double = 0.1): Polynomial =
+  def taylor(center: Double, order: Int, approxMethod: ApproximationMethods = AVERAGE, dx: Double = 0.1): Polynomial =
     /*
       Return a Polynomial object representing the Taylor-approximation
       of this, expanded around given center and to given order.
@@ -68,47 +75,6 @@ case class RealFunction(fct: Double => Double):
       )
     )
 
-  // Methods for finding zeros and extrema
-  def newtonsMethod(initialGuess: Double,
-                    iterations: Int,
-                    approxMethod: ApproximationMethods = RIGHT,
-                    dx: Double = 0.1): Double =
-    /*
-      Search for a zero of this using Newton's method starting at initialGuess.
-    */
-
-    if iterations == 0 then initialGuess else newtonsMethod(initialGuess - this.fct(initialGuess) / this.d(initialGuess, approxMethod, dx), iterations - 1, approxMethod, dx)
-
-  def gradientDescent(initialGuess: Double,
-                      iterations: Int,
-                      alpha: Double = 0.5,
-                      approxMethod: ApproximationMethods = RIGHT,
-                      dx: Double = 0.1): Double =
-    /*
-      Search for a minimum of this starting at initialGuess using gradient descent with moderator alpha.
-    */
-    
-    if iterations == 0 then 
-      initialGuess 
-    else 
-      gradientDescent(
-        initialGuess - alpha * this.d(initialGuess, approxMethod, dx), 
-        iterations - 1, 
-        alpha, 
-        approxMethod, 
-        dx
-      )
-
-  def gradientAscent(initialGuess: Double,
-                     iterations: Int,
-                     alpha: Double = 0.5,
-                     approxMethod: ApproximationMethods = RIGHT,
-                     dx: Double = 0.1): Double =
-    /*
-      Search for a maximum of this starting at initialGuess using gradient descent with moderator alpha on this.minus.
-     */
-    this.minus().gradientDescent(initialGuess, iterations, alpha, approxMethod, dx)
-    
   def integral(a: Double = 0,
                b: Double = 1,
                fineness: Double = 0.1,
@@ -135,7 +101,63 @@ case class RealFunction(fct: Double => Double):
 
 
 object RealFunction:
+  
+  def apply(p: Polynomial): RealFunction =
+    p.toFunction()
+  
+  // Methods for finding zeros and extrema
+  def newtonsMethod(f: RealFunction, 
+                    initialGuess: Double,
+                    iterations: Int,
+                    approxMethod: ApproximationMethods = AVERAGE,
+                    dx: Double = 0.1): Double =
+  /*
+    Search for a zero of f using Newton's method starting at initialGuess.
+  */
 
+    if iterations == 0 then 
+      initialGuess 
+    else 
+      newtonsMethod(
+        f, 
+        initialGuess - f(initialGuess) / f.d(initialGuess, approxMethod, dx), 
+        iterations - 1, 
+        approxMethod, 
+        dx)
+
+  def gradientDescent(f: RealFunction,
+                      initialGuess: Double,
+                      iterations: Int,
+                      alpha: Double = 0.5,
+                      approxMethod: ApproximationMethods = AVERAGE,
+                      dx: Double = 0.1): Double =
+  /*
+    Search for a minimum of f starting at initialGuess using gradient descent with moderator alpha.
+  */
+
+    if iterations == 0 then
+      initialGuess
+    else
+      gradientDescent(
+        f,
+        initialGuess - alpha * f.d(initialGuess, approxMethod, dx),
+        iterations - 1,
+        alpha,
+        approxMethod,
+        dx
+      )
+
+  def gradientAscent(f: RealFunction, 
+                     initialGuess: Double,
+                     iterations: Int,
+                     alpha: Double = 0.5,
+                     approxMethod: ApproximationMethods = AVERAGE,
+                     dx: Double = 0.1): Double =
+  /*
+    Search for a maximum of f starting at initialGuess using gradient descent with moderator alpha on this.minus.
+   */
+    RealFunction.gradientDescent(f.minus(), initialGuess, iterations, alpha, approxMethod, dx)
+  
   def partition(a: Double, b: Double, dx: Double): Vector[Double] =
     if a > b then
       Vector[Double](b)
