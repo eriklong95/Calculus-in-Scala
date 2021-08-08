@@ -60,13 +60,13 @@ object Demonstration extends App {
     "interval [0, Pi] (it is Pi/2) using gradient ascent.\n")
 
   println("Solution:")
-  val g = RealFunction(x => sin(x))
+  val g = RealFunction(x => -sin(x))
   val initialValue = 1
   val iterationsOne = 3
   val iterationsTwo = 10
   println(s"We use gradient ascent with initial guess $initialValue and $iterationsOne iterations.")
   println("This gives")
-  val estimateOne = RealFunction.gradientAscent(g, initialValue, iterationsOne)
+  val estimateOne = RealFunction.gradientDescent(g, initialValue, iterationsOne)
   println(estimateOne)
   println("The maximum is attained at Pi/2. If we multiply the estimate above with 2,\n" +
     "we should get an approximation of Pi.")
@@ -74,16 +74,16 @@ object Demonstration extends App {
   println(piEstimateOne)
   println(s"This estimate is poor. We try with $iterationsTwo iterations instead.")
   println("This gives")
-  val estimateTwo = RealFunction.gradientAscent(g, initialValue, iterationsTwo)
+  val estimateTwo = RealFunction.gradientDescent(g, initialValue, iterationsTwo)
   val piEstimateTwo = 2 * estimateTwo
   println(piEstimateTwo)
   println("This is not very impressive either.\n")
   println("The value of the infinitesimal dx used in the approximations involved here\n" +
     "is by default 0.1. Let's see what happens if we choose it smaller.")
   println("For different values of dx, we get the following estimates of Pi:")
-  val a = 2 * RealFunction.gradientAscent(g, initialValue, iterationsTwo, dx = 0.01)
-  val b = 2 * RealFunction.gradientAscent(g, initialValue, iterationsTwo, dx = 0.001)
-  val c = 2 * RealFunction.gradientAscent(g, initialValue, iterationsTwo, dx = 0.0001)
+  val a = 2 * RealFunction.gradientDescent(g, initialValue, iterationsTwo, dx = 0.01)
+  val b = 2 * RealFunction.gradientDescent(g, initialValue, iterationsTwo, dx = 0.001)
+  val c = 2 * RealFunction.gradientDescent(g, initialValue, iterationsTwo, dx = 0.0001)
   println("dx = 0.01: " + a)
   println("dx = 0.001: " + b)
   println("dx = 0.0001: " + c)

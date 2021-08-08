@@ -18,34 +18,8 @@ case class RealFunction(fct: Double => Double):
   def apply(point: Double): Double =
     this.fct(point)
 
-  // Arithmetic
-  def scale(a: Double): RealFunction =
-    RealFunction(x => a * this.fct(x))
-
-  def minus(): RealFunction =
-    this.scale(-1)
-
-  def plus(other: RealFunction): RealFunction =
-    RealFunction(x => this.fct(x) + other.fct(x))
-
-  def times(other: RealFunction): RealFunction =
-    RealFunction(x => this.fct(x) * other.fct(x))
-
   // Differentiation
-  def d(point: Double, approxMethod: ApproximationMethods = AVERAGE, dx: Double): Double =
-    /*
-      Return the (approximate) derivative of this at point.
-      Use given approximation method and infinitesimal size
-      for the calculations.
-     */
-
-    approxMethod match {
-      case RIGHT => (this.fct(point + dx) - this.fct(point)) / dx
-      case LEFT => (this.fct(point) - this.fct(point - dx)) / dx
-      case AVERAGE => (d(point, RIGHT, dx) + d(point, LEFT, dx)) / 2
-    }
-
-  def nth_d(point: Double, order: Int = 1, approxMethod: ApproximationMethods = AVERAGE, dx: Double = 1): Double =
+  def derivative(point: Double, order: Int, approxMethod: ApproximationMethods = AVERAGE, dx: Double = 0.1): Double =
     /*
       Return the n'th order (approximate) derivative of this.
       Use given approximation method and infinitesimal size
@@ -53,15 +27,16 @@ case class RealFunction(fct: Double => Double):
      */
 
     if order == 0 then
-      this.fct(point)
-    else if order == 1 then
-      d(point, approxMethod, dx)
+      this(point)
     else
       approxMethod match {
-        case RIGHT => (nth_d(point + dx, order - 1, approxMethod, dx) - nth_d(point, order - 1, approxMethod, dx)) / dx
-        case LEFT => (nth_d(point, order - 1, approxMethod, dx) - nth_d(point - dx, order - 1, approxMethod, dx)) / dx
-        case AVERAGE => (nth_d(point + dx, order - 1, approxMethod, dx) - nth_d(point - dx, order - 1, approxMethod, dx)) / (2 * dx)
+        case RIGHT => (derivative(point + dx, order - 1, approxMethod, dx) - derivative(point, order - 1, approxMethod, dx)) / dx
+        case LEFT => (derivative(point, order - 1, approxMethod, dx) - derivative(point - dx, order - 1, approxMethod, dx)) / dx
+        case AVERAGE => (derivative(point + dx, order - 1, approxMethod, dx) - derivative(point - dx, order - 1, approxMethod, dx)) / (2 * dx)
       }
+
+  def d(point: Double, approxMethod: ApproximationMethods = AVERAGE, dx: Double = 0.1): Double =
+    this.derivative(point, 1, approxMethod, dx)
 
   def taylor(center: Double, order: Int, approxMethod: ApproximationMethods = AVERAGE, dx: Double = 0.1): Polynomial =
     /*
@@ -69,12 +44,9 @@ case class RealFunction(fct: Double => Double):
       of this, expanded around given center and to given order.
      */
 
-    Polynomial(
-      MathVector(
-        (0 to order).toVector.map(n => this.nth_d(center, n, approxMethod, dx) / factorial(n))
-      )
-    )
+    Polynomial((0 to order).toVector.map(n => this.derivative(center, n, approxMethod, dx) / factorial(n)))
 
+  // Integration
   def integral(a: Double = 0,
                b: Double = 1,
                fineness: Double = 0.1,
@@ -101,12 +73,12 @@ case class RealFunction(fct: Double => Double):
 
 
 object RealFunction:
-  
+
   def apply(p: Polynomial): RealFunction =
     p.toFunction()
-  
-  // Methods for finding zeros and extrema
-  def newtonsMethod(f: RealFunction, 
+
+  // Numerical methods
+  def newtonsMethod(f: RealFunction,
                     initialGuess: Double,
                     iterations: Int,
                     approxMethod: ApproximationMethods = AVERAGE,
@@ -115,14 +87,14 @@ object RealFunction:
     Search for a zero of f using Newton's method starting at initialGuess.
   */
 
-    if iterations == 0 then 
-      initialGuess 
-    else 
+    if iterations == 0 then
+      initialGuess
+    else
       newtonsMethod(
-        f, 
-        initialGuess - f(initialGuess) / f.d(initialGuess, approxMethod, dx), 
-        iterations - 1, 
-        approxMethod, 
+        f,
+        initialGuess - f(initialGuess) / f.d(initialGuess, approxMethod, dx),
+        iterations - 1,
+        approxMethod,
         dx)
 
   def gradientDescent(f: RealFunction,
@@ -147,17 +119,7 @@ object RealFunction:
         dx
       )
 
-  def gradientAscent(f: RealFunction, 
-                     initialGuess: Double,
-                     iterations: Int,
-                     alpha: Double = 0.5,
-                     approxMethod: ApproximationMethods = AVERAGE,
-                     dx: Double = 0.1): Double =
-  /*
-    Search for a maximum of f starting at initialGuess using gradient descent with moderator alpha on this.minus.
-   */
-    RealFunction.gradientDescent(f.minus(), initialGuess, iterations, alpha, approxMethod, dx)
-  
+  // Other
   def partition(a: Double, b: Double, dx: Double): Vector[Double] =
     if a > b then
       Vector[Double](b)

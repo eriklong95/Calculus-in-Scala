@@ -9,6 +9,8 @@ case class Polynomial(coefs: MathVector):
    */
 
     this.coefs.coords.zipWithIndex.map((a, i) => a * pow(point, i)).sum
+  
+  // Algebra
   def plus(other: Polynomial): Polynomial = Polynomial(this.coefs.plus(other.coefs))
   def degree: Int = this.coefs.coords.lastIndexWhere(a => a != 0)
   def times(other: Polynomial): Polynomial =
@@ -16,25 +18,17 @@ case class Polynomial(coefs: MathVector):
     val d = this.degree + other.degree
 
     Polynomial(
-      MathVector(
-        (0 to d).toVector
-          .map(i => this.coefs.embed_project(i + 1)
-            .dot(other.coefs.embed_project(i+1).reverse))
-      )
+      (0 to d)
+        .toVector
+        .map(i => this.coefs.embedOrProject(i + 1)
+          .dot(other.coefs.embedOrProject(i + 1).reverse))
     )
-
-
-  def derivative: Polynomial =
-
-    Polynomial(
-      MathVector(
-        this.coefs.coords.zipWithIndex.map((a, i) => i * a).tail
-      )
-    )
-
-  def toFunction(): RealFunction =
-    RealFunction(x => this.apply(x))
-
+  
+  // Differentiation
+  def derivative: Polynomial = Polynomial(this.coefs.coords.zipWithIndex.map((a, i) => i * a).tail)
+  
+  // toType methods
+  def toFunction(): RealFunction = RealFunction(x => this.apply(x))
   override def toString(): String =
     this.coefs.coords
       .zipWithIndex
@@ -45,10 +39,11 @@ case class Polynomial(coefs: MathVector):
     // TODO: Force only two digits after decimal separator.
 
 object Polynomial:
-
-  def apply(coords: Vector[Double]): Polynomial =
-    Polynomial(MathVector(coords))
-
+  
+  // Alternative constructor
+  def apply(coords: Vector[Double]): Polynomial = Polynomial(MathVector(coords))
+  
+  // Numerical methods
   def newtonsMethod(p: Polynomial, initialGuess: Double, iterations: Int): Double =
     if iterations == 0 then
       initialGuess

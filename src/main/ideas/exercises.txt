@@ -2,6 +2,7 @@
 - define two polynomials f and g.
 - print them.
 - compute f * g and print the result.
+- mention nice scala syntax
 
 2) Estimating sqrt(2)
 - initialise Polynomial object representing x^2 - 2.
@@ -15,3 +16,9 @@
 - repeat with alpha = 0.1
 - repeat with alpha = 0.9
 - Compute Gaussian integral.
+
+4) The Fundamental Theorem of Calculus
+- define f(x) = sin(x)
+- find the derivative
+- integrate
+- check if the Fundamental Theorem of Calculus holds

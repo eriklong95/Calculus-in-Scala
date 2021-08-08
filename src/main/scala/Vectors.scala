@@ -3,7 +3,7 @@ class MathVector(val coords: Vector[Double]):
   def get_coords: Vector[Double] =
     this.coords
 
-  def embed_project(dimension: Int): MathVector =
+  def embedOrProject(dimension: Int): MathVector =
     /*
       If dimension (=: d) is larger than or equal to size of
       this, this is embedded in d-dimensional space by appending
@@ -28,8 +28,8 @@ class MathVector(val coords: Vector[Double]):
      */
 
     val dimension = List(this.coords.size, other.coords.size).max
-    val this_one = this.embed_project(dimension)
-    val other_one = other.embed_project(dimension)
+    val this_one = this.embedOrProject(dimension)
+    val other_one = other.embedOrProject(dimension)
 
     MathVector(
       this_one.coords.
